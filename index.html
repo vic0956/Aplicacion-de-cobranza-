@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de cobranza</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            background-color: #f4f6f9;
+        }
+
+        /* --- VISTA DE LOGIN --- */
+        #loginView {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .left-section {
+            flex: 1;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .left-section img {
+            max-width: 100%;
+            max-height: 85vh;
+            object-fit: contain;
+        }
+
+        .right-section {
+            flex: 1;
+            background-color: #007bff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px;
+            color: #ffffff;
+        }
+
+        .login-container {
+            max-width: 400px;
+            width: 100%;
+            margin-left: 10%;
+        }
+
+        .login-container h2 {
+            font-size: 1.4rem;
+            font-weight: 400;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+
+        .login-container h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 35px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 18px 15px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            background-color: #ffffff;
+            color: #333;
+            outline: none;
+        }
+
+        .input-group input::placeholder {
+            color: #999;
+        }
+
+        /* Captcha Interactivo */
+        .captcha-box {
+            background-color: #212121;
+            border-radius: 4px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .captcha-box.verified {
+            border-color: #28a745;
+        }
+
+        .captcha-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.1rem;
+        }
+
+        .checkbox-fake {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #4a90e2;
+            background-color: #fff;
+            border-radius: 2px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .captcha-logo {
+            font-size: 1.4rem;
+            opacity: 0.7;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        .remember-me input {
+            width: 18px;
+            height: 18px;
+            accent-color: #fff;
+            cursor: pointer;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 18px;
+            background-color: #ffffff;
+            color: #007bff;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: #f0f0f0;
+        }
+
+        .error-msg {
+            color: #ffdddd;
+            background-color: rgba(255, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        /* --- VISTA DEL SISTEMA DE COBRANZA --- */
+        #dashboardView {
+            display: none;
+            width: 100%;
+            height: 100%;
+            background-color: #f4f6f9;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: #1e293b;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar-top {
+            padding: 25px;
+        }
+
+        .sidebar-top h2 {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #38bdf8;
+        }
+
+        .menu-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .menu-item {
+            padding: 12px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: background 0.2s;
+            color: #cbd5e1;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .sidebar-bottom {
+            padding: 20px 25px;
+            border-top: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .admin-badge {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .btn-logout {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .dash-header {
+            background-color: #ffffff;
+            padding: 20px 40px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dash-header h1 {
+            color: #333;
+            font-size: 1.4rem;
+        }
+
+        .dash-content {
+            padding: 30px 40px;
+            flex: 1;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active-section {
+            display: block;
+        }
+
+        .stats-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            flex: 1;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .table-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-filter-area {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input, .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .badge-pending {
+            background-color: #ffc107;
+            color: #333;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .badge-paid {
+            background-color: #28a745;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .form-card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            max-width: 700px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #444;
+            font-size: 0.9rem;
+        }
+
+        .form-group input, .form-group select {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #007bff;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-success {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .btn-action {
+            background-color: #e2e8f0;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #334155;
+            font-size: 0.8rem;
+            transition: background 0.2s;
+        }
+
+        .btn-action:hover {
+            background-color: #cbd5e1;
+        }
+
+        .btn-delete {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        .btn-delete:hover {
+            background-color: #fecaca;
+        }
+
+        .btn-pdf {
+            background-color: #0284c7;
+            color: white;
+        }
+
+        .btn-pdf:hover {
+            background-color: #0369a1;
+        }
+
+        /* Modal de Edición */
+        #modalEditar {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            #loginView { flex-direction: column; overflow: auto; }
+            .left-section { height: 250px; padding: 20px; }
+            .right-section { height: auto; padding: 30px; }
+            .login-container { margin-left: 0; }
+            body { flex-direction: column; overflow: auto; }
+            .sidebar { width: 100%; height: auto; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. VISTA DE LOGIN -->
+    <div id="loginView">
+        <div class="left-section">
+            <img src="ilustracion.png" alt="Ilustración de seguridad y login">
+        </div>
+
+        <div class="right-section">
+            <div class="login-container">
+                <h2>iniciar sesión en</h2>
+                <h1>Sistema de cobranza</h1>
+
+                <div id="errorAlert" class="error-msg">Por favor completa el captcha o verifica los datos.</div>
+
+                <form id="loginForm">
+                    <div class="input-group">
+                        <input type="text" id="usuario" placeholder="nombre de la cuenta" required>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="password" id="clave" placeholder="clave" required>
+                    </div>
+
+                    <!-- Captcha Interactivo -->
+                    <div class="captcha-box" id="captchaBox">
+                        <div class="captcha-left">
+                            <div class="checkbox-fake" id="checkboxFake"></div>
+                            <span id="captchaText">Click to verify</span>
+                        </div>
+                        <div class="captcha-logo">🔄</div>
+                    </div>
+
+                    <div class="remember-me">
+                        <input type="checkbox" id="remember">
+                        <label for="remember">Recuérdame</label>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Iniciar sesión</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. VISTA INTERNA (SISTEMA DE COBRANZA) -->
+    <div id="dashboardView" style="display: none;">
+        
+        <!-- Barra Lateral de Opciones -->
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <h2>Cobranza App</h2>
+                <ul class="menu-list">
+                    <li class="menu-item active" onclick="cambiarSeccion('resumen', this)">📊 Resumen General</li>
+                    <li class="menu-item" onclick="cambiarSeccion('deudores', this)">⚠️ Clientes / Deudores</li>
+                    <li class="menu-item" onclick="cambiarSeccion('agregar', this)">➕ Agregar Cliente</li>
+                </ul>
+            </div>
+            <div class="sidebar-bottom">
+                <span class="admin-badge" id="adminUserDisplay">Admin: admin</span>
+                <button class="btn-logout" id="btnLogout">Cerrar Sesión</button>
+            </div>
+        </aside>
+
+        <!-- Área Principal de Contenido -->
+        <div class="main-area">
+            <header class="dash-header">
+                <h1 id="tituloSeccion">Resumen General</h1>
+                <button class="btn-success" onclick="exportarPDFGlobal()">🖨️ Reporte Global PDF</button>
+            </header>
+
+            <div class="dash-content">
+                
+                <!-- SECCIÓN 1: RESUMEN GENERAL -->
+                <div id="seccion-resumen" class="content-section active-section">
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <h3>Total Cobrado</h3>
+                            <p id="statCobrado">$0.00</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Deuda Pendiente</h3>
+                            <p id="statPendiente">$0.00</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Clientes Totales</h3>
+                            <p id="totalClientesCount">0</p>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <h3>Acceso Rápido a Cobros Recientes</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Monto</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaResumenBody">
+                                <!-- Se llena dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 2: CLIENTES QUE DEBEN -->
+                <div id="seccion-deudores" class="content-section">
+                    <div class="table-container">
+                        <div class="table-header-flex">
+                            <h3>Listado Completo de Clientes</h3>
+                            <div class="search-filter-area">
+                                <input type="text" id="inputBuscador" class="search-input" placeholder="Buscar por nombre, teléfono..." onkeyup="filtrarClientes()">
+                                <select id="selectFiltroEstado" class="filter-select" onchange="filtrarClientes()">
+                                    <option value="Todos">Todos los estados</option>
+                                    <option value="Pendiente">Pendiente</option>
+                                    <option value="Pagado">Pagado</option>
+                                </select>
+                            </div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Ubicación</th>
+                                    <th>Teléfono</th>
+                                    <th>Monto</th>
+                                    <th>Fecha Límite</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaDeudoresBody">
+                                <!-- Se llena dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 3: AGREGAR CLIENTE -->
+                <div id="seccion-agregar" class="content-section">
+                    <div class="form-card">
+                        <h3 style="margin-bottom: 20px; color: #333;">Registrar Nuevo Cliente / Deudor</h3>
+                        <form id="formAgregarCliente">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Nombre del Cliente</label>
+                                    <input type="text" id="nuevoNombre" placeholder="Ej. Carlos Mendoza" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Teléfono</label>
+                                    <input type="text" id="nuevoTelefono" placeholder="+58 412-1234567" required>
+                                </div>
+                                <div class="form-group full">
+                                    <label>Ubicación / Dirección</label>
+                                    <input type="text" id="nuevaUbicacion" placeholder="Ej. Av. Principal, Local 4" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Monto de la Deuda ($)</label>
+                                    <input type="number" step="0.01" id="nuevoMonto" placeholder="500.00" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Fecha Límite</label>
+                                    <input type="date" id="nuevaFecha" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Estado</label>
+                                    <select id="nuevoEstado">
+                                        <option value="Pendiente">Pendiente</option>
+                                        <option value="Pagado">Pagado</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-primary">Guardar Cliente</button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL DE EDICIÓN COMPLETA -->
+    <div id="modalEditar">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 20px; color: #333;">Editar Datos del Cliente</h3>
+            <form id="formEditarCliente">
+                <input type="hidden" id="editIndex">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" id="editNombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="text" id="editTelefono" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Ubicación</label>
+                        <input type="text" id="editUbicacion" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Monto ($)</label>
+                        <input type="number" step="0.01" id="editMonto" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha Límite</label>
+                        <input type="date" id="editFecha" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Estado</label>
+                        <select id="editEstado">
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Pagado">Pagado</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn-action" onclick="cerrarModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const USUARIO_VALIDO = "admin";
+        const CLAVE_VALIDA = "12345";
+        let captchaVerificado = false;
+
+        // Cargar clientes desde localStorage o usar valores por defecto
+        let listaClientes = JSON.parse(localStorage.getItem('sistemaCobranzaClientes')) || [
+            { nombre: "Budi Santoso", ubicacion: "Jakarta Pusat, Jl. Sudirman #12", telefono: "+62 812-3456-7890", monto: 450.00, fecha: "2026-07-30", estado: "Pendiente" },
+            { nombre: "Siti Rahma", ubicacion: "Bandung, Jl. Asia Afrika #45", telefono: "+62 813-9876-5432", monto: 1200.00, fecha: "2026-08-02", estado: "Pendiente" },
+            { nombre: "Ahmad Wijaya", ubicacion: "Surabaya, Jl. Pemuda #88", telefono: "+62 811-2233-4455", monto: 800.00, fecha: "2026-07-25", estado: "Pagado" }
+        ];
+
+        const captchaBox = document.getElementById("captchaBox");
+        const checkboxFake = document.getElementById("checkboxFake");
+        const captchaText = document.getElementById("captchaText");
+        const loginForm = document.getElementById("loginForm");
+        const errorAlert = document.getElementById("errorAlert");
+
+        const loginView = document.getElementById("loginView");
+        const dashboardView = document.getElementById("dashboardView");
+        const btnLogout = document.getElementById("btnLogout");
+        const adminUserDisplay = document.getElementById("adminUserDisplay");
+
+        // Captcha
+        captchaBox.addEventListener("click", function() {
+            captchaVerificado = true;
+            captchaBox.classList.add("verified");
+            checkboxFake.innerHTML = "✓";
+            captchaText.textContent = "Verificado";
+        });
+
+        // Login
+        loginForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+            const inputUsuario = document.getElementById("usuario").value;
+            const inputClave = document.getElementById("clave").value;
+
+            if (!captchaVerificado) {
+                errorAlert.textContent = "Por favor marca la casilla 'Click to verify'.";
+                errorAlert.style.display = "block";
+                return;
+            }
+
+            if (inputUsuario === USUARIO_VALIDO && inputClave === CLAVE_VALIDA) {
+                adminUserDisplay.textContent = `Admin: ${inputUsuario}`;
+                loginView.style.display = "none";
+                dashboardView.style.display = "flex";
+                renderizarTablas();
+            } else {
+                errorAlert.textContent = "Usuario o contraseña incorrectos.";
+                errorAlert.style.display = "block";
+            }
+        });
+
+        // Logout
+        btnLogout.addEventListener("click", function() {
+            dashboardView.style.display = "none";
+            loginView.style.display = "flex";
+            document.getElementById("usuario").value = "";
+            document.getElementById("clave").value = "";
+            errorAlert.style.display = "none";
+            captchaVerificado = false;
+            captchaBox.classList.remove("verified");
+            checkboxFake.innerHTML = "";
+            captchaText.textContent = "Click to verify";
+        });
+
+        // Navegación de la barra lateral
+        function cambiarSeccion(seccionID, elementoMenu) {
+            document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active-section'));
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+
+            document.getElementById('seccion-' + seccionID).classList.add('active-section');
+            if(elementoMenu) elementoMenu.classList.add('active');
+
+            const titulos = {
+                'resumen': 'Resumen General',
+                'deudores': 'Clientes / Deudores',
+                'agregar': 'Registrar Nuevo Cliente'
+            };
+            document.getElementById('tituloSeccion').textContent = titulos[seccionID];
+        }
+
+        // Guardar y sincronizar datos en localStorage
+        function guardarEnMemoria() {
+            localStorage.setItem('sistemaCobranzaClientes', JSON.stringify(listaClientes));
+        }
+
+        // Calcular Estadísticas y Renderizar
+        function renderizarTablas(datosAMostrar = listaClientes) {
+            const tbodyDeudores = document.getElementById('tablaDeudoresBody');
+            const tbodyResumen = document.getElementById('tablaResumenBody');
+            
+            tbodyDeudores.innerHTML = '';
+            tbodyResumen.innerHTML = '';
+
+            let totalCobrado = 0;
+            let totalPendiente = 0;
+
+            listaClientes.forEach(cli => {
+                const montoNum = parseFloat(cli.monto) || 0;
+                if(cli.estado === 'Pagado') {
+                    totalCobrado += montoNum;
+                } else {
+                    totalPendiente += montoNum;
+                }
+            });
+
+            document.getElementById('statCobrado').textContent = `$${totalCobrado.toFixed(2)}`;
+            document.getElementById('statPendiente').textContent = `$${totalPendiente.toFixed(2)}`;
+            document.getElementById('totalClientesCount').textContent = listaClientes.length;
+
+            datosAMostrar.forEach((cli) => {
+                const realIndex = listaClientes.indexOf(cli);
+                const badgeClass = cli.estado === 'Pagado' ? 'badge-paid' : 'badge-pending';
+                
+                tbodyDeudores.innerHTML += `
+                    <tr>
+                        <td><b>${cli.nombre}</b></td>
+                        <td>${cli.ubicacion}</td>
+                        <td>${cli.telefono}</td>
+                        <td>$${parseFloat(cli.monto).toFixed(2)}</td>
+                        <td>${cli.fecha}</td>
+                        <td><span class="${badgeClass}">${cli.estado}</span></td>
+                        <td>
+                            <button class="btn-action" onclick="abrirEditar(${realIndex})">Editar</button>
+                            <button class="btn-action btn-pdf" onclick="imprimirReportePDF(${realIndex})">🖨️ PDF</button>
+                            <button class="btn-action btn-delete" onclick="eliminarCliente(${realIndex})">Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            listaClientes.slice(0, 4).forEach((cli) => {
+                const badgeClass = cli.estado === 'Pagado' ? 'badge-paid' : 'badge-pending';
+                tbodyResumen.innerHTML += `
+                    <tr>
+                        <td>${cli.nombre}</td>
+                        <td>$${parseFloat(cli.monto).toFixed(2)}</td>
+                        <td><span class="${badgeClass}">${cli.estado}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Filtrar y buscar clientes en tiempo real
+        function filtrarClientes() {
+            const texto = document.getElementById('inputBuscador').value.toLowerCase();
+            const estadoFiltro = document.getElementById('selectFiltroEstado').value;
+
+            const filtrados = listaClientes.filter(cli => {
+                const coincideTexto = cli.nombre.toLowerCase().includes(texto) || cli.telefono.toLowerCase().includes(texto) || cli.ubicacion.toLowerCase().includes(texto);
+                const coincideEstado = (estadoFiltro === 'Todos' || cli.estado === estadoFiltro);
+                return coincideTexto && coincideEstado;
+            });
+
+            renderizarTablas(filtrados);
+        }
+
+        // Agregar nuevo cliente
+        document.getElementById('formAgregarCliente').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const nuevo = {
+                nombre: document.getElementById('nuevoNombre').value,
+                telefono: document.getElementById('nuevoTelefono').value,
+                ubicacion: document.getElementById('nuevaUbicacion').value,
+                monto: parseFloat(document.getElementById('nuevoMonto').value),
+                fecha: document.getElementById('nuevaFecha').value,
+                estado: document.getElementById('nuevoEstado').value
+            };
+
+            listaClientes.push(nuevo);
+            guardarEnMemoria();
+            renderizarTablas();
+            alert('¡Cliente agregado exitosamente!');
+            
+            this.reset();
+            cambiarSeccion('deudores', document.querySelectorAll('.menu-item')[1]);
+        });
+
+        // Eliminar Cliente
+        function eliminarCliente(index) {
+            if(confirm(`¿Estás seguro de eliminar a ${listaClientes[index].nombre}?`)) {
+                listaClientes.splice(index, 1);
+                guardarEnMemoria();
+                renderizarTablas();
+            }
+        }
+
+        // Abrir Modal de Edición Completa
+        function abrirEditar(index) {
+            const cli = listaClientes[index];
+            document.getElementById('editIndex').value = index;
+            document.getElementById('editNombre').value = cli.nombre;
+            document.getElementById('editTelefono').value = cli.telefono;
+            document.getElementById('editUbicacion').value = cli.ubicacion;
+            document.getElementById('editMonto').value = cli.monto;
+            document.getElementById('editFecha').value = cli.fecha;
+            document.getElementById('editEstado').value = cli.estado;
+
+            document.getElementById('modalEditar').style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalEditar').style.display = 'none';
+        }
+
+        // Guardar cambios del modal de edición
+        document.getElementById('formEditarCliente').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const index = document.getElementById('editIndex').value;
+
+            listaClientes[index] = {
+                nombre: document.getElementById('editNombre').value,
+                telefono: document.getElementById('editTelefono').value,
+                ubicacion: document.getElementById('editUbicacion').value,
+                monto: parseFloat(document.getElementById('editMonto').value),
+                fecha: document.getElementById('editFecha').value,
+                estado: document.getElementById('editEstado').value
+            };
+
+            guardarEnMemoria();
+            renderizarTablas();
+            cerrarModal();
+            alert('¡Datos actualizados correctamente!');
+        });
+
+        // Imprimir Reporte en PDF específico del Cliente
+        function imprimirReportePDF(index) {
+            const cli = listaClientes[index];
+            const ventanaReporte = window.open('', '_blank');
+            
+            ventanaReporte.document.write(`
+                <html>
+                <head>
+                    <title>Reporte de Cliente - ${cli.nombre}</title>
+                    <style>
+                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #333; background: #fff; }
+                        .header { border-bottom: 2px solid #007bff; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+                        .header h1 { color: #007bff; font-size: 24px; margin: 0; }
+                        .header p { color: #666; font-size: 14px; margin: 5px 0 0 0; }
+                        .card { background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 25px; margin-bottom: 25px; }
+                        .card h3 { margin-top: 0; color: #1e293b; border-bottom: 1px solid #cbd5e1; padding-bottom: 10px; font-size: 18px; }
+                        .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #e2e8f0; font-size: 15px; }
+                        .info-row:last-child { border-bottom: none; }
+                        .label { font-weight: bold; color: #475569; }
+                        .value { color: #0f172a; }
+                        .badge { padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 14px; display: inline-block; }
+                        .badge-pending { background-color: #fef3c7; color: #d97706; }
+                        .badge-paid { background-color: #d1fae5; color: #059669; }
+                        .footer { margin-top: 50px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 15px; }
+                        @media print {
+                            body { padding: 0; }
+                            .no-print { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div>
+                            <h1>Sistema de Cobranza</h1>
+                            <p>Reporte Detallado de Estado de Cuenta</p>
+                        </div>
+                        <div>
+                            <p><strong>Fecha de Emisión:</strong> ${new Date().toLocaleDateString()}</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Información General del Cliente</h3>
+                        <div class="info-row"><span class="label">Nombre Completo:</span> <span class="value">${cli.nombre}</span></div>
+                        <div class="info-row"><span class="label">Teléfono de Contacto:</span> <span class="value">${cli.telefono}</span></div>
+                        <div class="info-row"><span class="label">Ubicación / Dirección:</span> <span class="value">${cli.ubicacion}</span></div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Detalle Financiero y Deuda</h3>
+                        <div class="info-row"><span class="label">Monto Registrado:</span> <span class="value" style="font-size: 18px; font-weight: bold; color: #007bff;">$${parseFloat(cli.monto).toFixed(2)}</span></div>
+                        <div class="info-row"><span class="label">Fecha Límite de Pago:</span> <span class="value">${cli.fecha}</span></div>
+                        <div class="info-row"><span class="label">Estado Actual:</span> <span class="value"><span class="badge ${cli.estado === 'Pagado' ? 'badge-paid' : 'badge-pending'}">${cli.estado}</span></span></div>
+                    </div>
+
+                    <div class="no-print" style="text-align: center; margin-top: 30px;">
+                        <button onclick="window.print()" style="background-color: #007bff; color: white; border: none; padding: 12px 25px; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer;">Imprimir / Guardar como PDF</button>
+                    </div>
+
+                    <div class="footer">
+                        <p>Este documento es un comprobante interno generado automáticamente por el Sistema de Cobranza.</p>
+                    </div>
+                </body>
+                </html>
+            `);
+            ventanaReporte.document.close();
+        }
+
+        // Generar Reporte Global en PDF de todos los clientes
+        function exportarPDFGlobal() {
+            let totalCobrado = 0;
+            let totalPendiente = 0;
+
+            listaClientes.forEach(cli => {
+                const montoNum = parseFloat(cli.monto) || 0;
+                if(cli.estado === 'Pagado') {
+                    totalCobrado += montoNum;
+                } else {
+                    totalPendiente += montoNum;
+                }
+            });
+
+            const ventanaGlobal = window.open('', '_blank');
+            
+            let filasHTML = '';
+            listaClientes.forEach(cli => {
+                const badgeStyle = cli.estado === 'Pagado' 
+                    ? 'background-color: #d1fae5; color: #059669; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;' 
+                    : 'background-color: #fef3c7; color: #d97706; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;';
+                
+                filasHTML += `
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><b>${cli.nombre}</b></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${cli.ubicacion}</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${cli.telefono}</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">$${parseFloat(cli.monto).toFixed(2)}</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${cli.fecha}</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><span style="${badgeStyle}">${cli.estado}</span></td>
+                    </tr>
+                `;
+            });
+
+            ventanaGlobal.document.write(`
+                <html>
+                <head>
+                    <title>Reporte Global de Clientes - Sistema de Cobranza</title>
+                    <style>
+                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #333; background: #fff; }
+                        .header { border-bottom: 2px solid #007bff; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+                        .header h1 { color: #007bff; font-size: 24px; margin: 0; }
+                        .header p { color: #666; font-size: 14px; margin: 5px 0 0 0; }
+                        .stats-row { display: flex; gap: 20px; margin-bottom: 30px; }
+                        .stat-box { background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; flex: 1; }
+                        .stat-box h4 { margin: 0 0 5px 0; font-size: 13px; color: #64748b; }
+                        .stat-box p { margin: 0; font-size: 20px; font-weight: bold; color: #0f172a; }
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                        th { background-color: #f1f5f9; color: #334155; padding: 12px 10px; text-align: left; font-size: 13px; border-bottom: 2px solid #cbd5e1; }
+                        td { font-size: 13px; color: #334155; }
+                        .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 15px; }
+                        @media print {
+                            body { padding: 0; }
+                            .no-print { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div>
+                            <h1>Sistema de Cobranza</h1>
+                            <p>Reporte Global y Estado General de Clientes</p>
+                        </div>
+                        <div>
+                            <p><strong>Fecha de Emisión:</strong> ${new Date().toLocaleDateString()}</p>
+                        </div>
+                    </div>
+
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <h4>TOTAL COBRADO</h4>
+                            <p style="color: #059669;">$${totalCobrado.toFixed(2)}</p>
+                        </div>
+                        <div class="stat-box">
+                            <h4>DEUDA PENDIENTE</h4>
+                            <p style="color: #d97706;">$${totalPendiente.toFixed(2)}</p>
+                        </div>
+                        <div class="stat-box">
+                            <h4>TOTAL CLIENTES</h4>
+                            <p>${listaClientes.length}</p>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Ubicación</th>
+                                <th>Teléfono</th>
+                                <th>Monto</th>
+                                <th>Fecha Límite</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filasHTML}
+                        </tbody>
+                    </table>
+
+                    <div class="no-print" style="text-align: center; margin-top: 20px;">
+                        <button onclick="window.print()" style="background-color: #007bff; color: white; border: none; padding: 12px 25px; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer;">Imprimir / Guardar como PDF</button>
+                    </div>
+
+                    <div class="footer">
+                        <p>Reporte global generado automáticamente por el Sistema de Cobranza.</p>
+                    </div>
+                </body>
+                </html>
+            `);
+            ventanaGlobal.document.close();
+        }
+    </script>
+
+</body>
+</html>
