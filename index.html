@@ -1053,6 +1053,8 @@
             if (seccionId === 'deudores') renderizarTablaDeudores();
             if (seccionId === 'agenda') renderizarAgenda();
             if (seccionId === 'resumen') actualizarEstadisticasYGraficos();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function renderizarTablaDeudores(lista = clientesData) {
