@@ -340,6 +340,26 @@
             overflow-y: auto;
         }
 
+        .mobile-toggle-bar {
+            display: none;
+            background-color: var(--bg-sidebar);
+            color: white;
+            padding: 12px 20px;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .mobile-toggle-btn {
+            background: #1a90ff;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
         .dash-header {
             background-color: var(--bg-header);
             padding: 20px 40px;
@@ -587,7 +607,7 @@
                 background-color: #ffffff !important;
                 color: #000000 !important;
             }
-            .sidebar, .dash-header button, .top-controls-group, .btn-action, .table-header-flex, #toastContainer, .puzzle-modal-content, .modal-overlay {
+            .sidebar, .dash-header button, .top-controls-group, .btn-action, .table-header-flex, #toastContainer, .puzzle-modal-content, .modal-overlay, .mobile-toggle-bar {
                 display: none !important;
             }
             .main-area {
@@ -679,6 +699,13 @@
             .sidebar {
                 width: 100%;
                 height: auto;
+                display: none; /* Oculto por defecto en móvil para que no estorbe */
+            }
+            .sidebar.mobile-open {
+                display: flex; /* Se muestra al presionar el botón de menú */
+            }
+            .mobile-toggle-bar {
+                display: flex;
             }
             .sidebar-logo svg {
                 max-width: 60px;
@@ -757,7 +784,7 @@
 
     <!-- 2. VISTA INTERNA (DASHBOARD) -->
     <div id="dashboardView">
-        <aside class="sidebar">
+        <aside class="sidebar" id="appSidebar">
             <div class="sidebar-top">
                 <div class="sidebar-logo">
                     <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
@@ -781,6 +808,12 @@
         </aside>
 
         <div class="main-area">
+            <!-- Barra superior para celulares con botón hamburguesa -->
+            <div class="mobile-toggle-bar">
+                <span style="font-weight: bold;">Menu de Navegación</span>
+                <button class="mobile-toggle-btn" onclick="toggleMenuMovil()">☰ Menú</button>
+            </div>
+
             <header class="dash-header">
                 <h1 id="tituloSeccion">Resumen General</h1>
                 
@@ -1033,6 +1066,11 @@
             mostrarToast('Sesión cerrada', 'info');
         }
 
+        function toggleMenuMovil() {
+            const sidebar = document.getElementById('appSidebar');
+            sidebar.classList.toggle('mobile-open');
+        }
+
         function cambiarSeccion(seccionId, elementoMenu) {
             document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active-section'));
             document.getElementById(`seccion-${seccionId}`).classList.add('active-section');
@@ -1054,6 +1092,8 @@
             if (seccionId === 'agenda') renderizarAgenda();
             if (seccionId === 'resumen') actualizarEstadisticasYGraficos();
 
+            // En móvil, al seleccionar una opción se oculta automáticamente el menú lateral
+            document.getElementById('appSidebar').classList.remove('mobile-open');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
